@@ -1,8 +1,10 @@
 import express from "express";
 import User from "../models/User.js";
+import jwt from "jsonwebtoken";
+
 const router = express.Router();
 
-router.post("/login", async (req, res) => {
+router.post("/register", async (req, res) => {
   try {
     const { email, username, password } = req.body;
     if (!email || !username || !password) {
@@ -34,12 +36,31 @@ router.post("/login", async (req, res) => {
     const profileImage = `https://api.dicebear.com/9.x/avataaars/svg?seed=${username}`;
 
     const user = await User.create({ email, username, password, profileImage });
+    await user.save();
 
-  } catch (error) {}
+    const token = generateToken(user._id);
+
+    res.status(201).json({
+      token,
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        profileImage: user.profileImage,
+      },
+    });
+  } catch (error) {
+    console.log("An error occurred while registering the user", error);
+    res.status(500).json({ message: "An error occurred" });
+  }
 });
 
-router.post("/register", async (req, res) => {
-  res.send("register");
+router.post("/login", async (req, res) => {
+  res.send("login");
 });
+
+const generateToken = (userId) => {
+  return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: "15d" });
+};
 
 export default router;
