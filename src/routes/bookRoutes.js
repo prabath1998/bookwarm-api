@@ -85,4 +85,16 @@ router.delete("/:id", protectRoute, async (req, res) => {
     res.status(200).json({ message: "Book deleted successfully" });
   } catch (error) {}
 });
+
+router.get("/user", protectRoute, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const books = await Book.find({ user: userId }).sort({ createdAt: -1 });
+
+    res.json(books);
+  } catch (error) {
+    console.log("An error occurred while fetching user books", error);
+    res.status(500).json({ message: error.message });
+  }
+});
 export default router;

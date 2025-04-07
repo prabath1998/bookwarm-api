@@ -26,7 +26,7 @@ const bookSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { timeseries: true }
+  { timestamps: true }
 );
 
 const book = mongoose.model("Book", bookSchema);
